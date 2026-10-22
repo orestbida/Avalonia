@@ -58,9 +58,13 @@ namespace Avalonia.LinuxFramebuffer
 
             var opts = AvaloniaLocator.Current.GetService<LinuxFramebufferPlatformOptions>() ?? new LinuxFramebufferPlatformOptions();
 
-            var timer = opts.ShouldRenderOnUIThread
-                ? new UiThreadRenderTimer(opts.Fps)
-                : new DefaultRenderTimer(opts.Fps);
+            IRenderTimer timer;
+            if (opts.ShouldRenderOnUIThread)
+                timer = new UiThreadRenderTimer(opts.Fps);
+            else if (opts.UseVBlankRenderTimer && _fb is DrmOutput drm)
+                timer = drm.TryCreateVBlankRenderTimer() ?? new DefaultRenderTimer(opts.Fps);
+            else
+                timer = new DefaultRenderTimer(opts.Fps);
             
             Dispatcher.InitializeUIThreadDispatcher(new EpollDispatcherImpl(new ManualRawEventGrouperDispatchQueueDispatcherInputProvider(EventGrouperDispatchQueue)));
             AvaloniaLocator.CurrentMutable

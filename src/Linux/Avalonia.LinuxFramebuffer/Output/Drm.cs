@@ -210,6 +210,23 @@ namespace Avalonia.LinuxFramebuffer.Output
         [DllImport(libdrm, SetLastError = true)]
         public static extern void drmHandleEvent(int fd, DrmEventContext* context);
 
+        public const uint DRM_VBLANK_ABSOLUTE = 0x0;
+        public const uint DRM_VBLANK_RELATIVE = 0x1;
+        public const int DRM_VBLANK_HIGH_CRTC_SHIFT = 1;
+        public const uint DRM_VBLANK_HIGH_CRTC_MASK = 0x0000003e;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct drmVBlank
+        {
+            public uint type;
+            public uint sequence;
+            public nint tval_sec; // request.signal
+            public nint tval_usec;
+        }
+
+        [DllImport(libdrm, SetLastError = true)]
+        public static extern int drmWaitVBlank(int fd, drmVBlank* vbl);
+
         [DllImport(libgbm, SetLastError = true)]
         public static extern IntPtr gbm_create_device(int fd);
         

@@ -8,6 +8,7 @@ using Avalonia.OpenGL;
 using Avalonia.OpenGL.Egl;
 using Avalonia.OpenGL.Surfaces;
 using Avalonia.Platform;
+using Avalonia.Rendering;
 using Avalonia.Rendering.Composition;
 using static Avalonia.LinuxFramebuffer.NativeUnsafeMethods;
 using static Avalonia.LinuxFramebuffer.Output.LibDrm;
@@ -164,6 +165,24 @@ namespace Avalonia.LinuxFramebuffer.Output
 
 
             return fbHandle;
+        }
+
+        internal IRenderTimer? TryCreateVBlankRenderTimer()
+        {
+            var res = drmModeGetResources(_card.Fd);
+            if (res == null)
+                return null;
+            try
+            {
+                for (var pipe = 0; pipe < res->count_crtcs; pipe++)
+                    if (res->crtcs[pipe] == _crtcId)
+                        return DrmVBlankRenderTimer.TryCreate(_card.Fd, pipe);
+                return null;
+            }
+            finally
+            {
+                drmModeFreeResources(res);
+            }
         }
 
         [MemberNotNull(nameof(_card))]

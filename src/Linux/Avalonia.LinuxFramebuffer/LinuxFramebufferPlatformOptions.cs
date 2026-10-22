@@ -17,5 +17,12 @@
         /// This setting is false by default.
         /// </summary>
         public bool ShouldRenderOnUIThread { get; set; }
+
+        /// <summary>
+        /// Tick the renderer on the vertical blanks of the DRM output instead of at a fixed <see cref="Fps"/>.
+        /// Has no effect with the framebuffer device output or when <see cref="ShouldRenderOnUIThread"/> is set.
+        /// This setting is false by default.
+        /// </summary>
+        public bool UseVBlankRenderTimer { get; set; }
     }
 }
